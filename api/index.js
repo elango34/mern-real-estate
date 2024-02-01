@@ -22,6 +22,18 @@ mongoose.connect(process.env.MONGODB_CONNECT).then(()=>{
 app.use("/api/user",userRouter);
 app.use("/api/auth", authRouter);
 
+// https://www.notion.so/Node-js-a74a450ee2864a04b641e826d88e956d?pvs=4#d24f3242fa0a4bc6b162e024581b3146
+app.use((err, req, res, next) => {
+    const errorStatusCode = err.statusCode || 500;
+    const errorMessage = err.message || "Internal server error";
+    
+    res.status(errorStatusCode).json({
+        success: false,
+        statusCode: errorStatusCode,
+        message: errorMessage
+    })
+})
+
 app.listen(3001, ()=> {
     console.log("listening on port 3001..");
 })

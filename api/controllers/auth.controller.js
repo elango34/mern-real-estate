@@ -11,7 +11,8 @@ export const signup = async(req, res, next) => {
         await user.save();
         res.status(201).json("successfully saved");
     } catch(error) {
-        res.status(500).json(error.message);
-
+        // https://www.notion.so/Node-js-a74a450ee2864a04b641e826d88e956d?pvs=4#d24f3242fa0a4bc6b162e024581b3146
+        // Instead of sending error from each controller, use error middleware from all place
+        next(error);
     }
 }
