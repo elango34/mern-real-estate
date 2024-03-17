@@ -1,11 +1,36 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  login,
+  selectError,
+  selectIsLoading,
+  selectStatus,
+  selectUser,
+} from "./authSlice";
 
 export default function SignIn() {
+  const dispatch = useDispatch();
   const [formData, setFormData] = useState({});
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+
+  const loading = useSelector(selectIsLoading);
+  const status = useSelector(selectStatus);
+  const error = useSelector(selectError);
+  const user = useSelector(selectUser);
+
   const navigate = useNavigate();
+
+  // Since React may batch state updates, we use useEffect to ensure we have the latest
+  // 'status' value after the component re-renders due to the state change.
+  // useEffect guarantees that the code within it runs after the component has re-rendered in
+  // response to the state update, ensuring that we access the latest 'status' for navigation.
+  
+  useEffect(() => {
+    if (status == "success" && user) {
+      navigate("/");
+    }
+  }, [navigate, status]);
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -14,29 +39,9 @@ export default function SignIn() {
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      setLoading(true);
-      const res = await fetch("/api/auth/signin", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-      const data = await res.json();
-      console.log(data);
-      if (data.success === false) {
-        setLoading(false);
-        setError(data.message);
-        return;
-      }
-      setLoading(false);
-      setError(null);
-      navigate("/");
-    } catch (error) {
-      setLoading(false);
-      setError(error.message);
-    }
+
+    await dispatch(login(formData));
+    console.log("rendere3d");
   };
   return (
     <div className="p-3 max-w-lg mx-auto">

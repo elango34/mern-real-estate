@@ -1,5 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  signup,
+  selectError,
+  selectIsLoading,
+  selectStatus,
+} from "./authSlice";
 
 export default function SignUp() {
   const [formEntries, setFormEntries] = useState({
@@ -8,9 +15,22 @@ export default function SignUp() {
     password: "",
   });
 
-  const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState("");
+  const dispatch = useDispatch();
+  const isLoading = useSelector(selectIsLoading);
+  const status = useSelector(selectStatus);
+  const error = useSelector(selectError);
+
   const navigate = useNavigate();
+
+  // Since React may batch state updates, we use useEffect to ensure we have the latest
+  // 'status' value after the component re-renders due to the state change.
+  // useEffect guarantees that the code within it runs after the component has re-rendered in 
+  // response to the state update, ensuring that we access the latest 'status' for navigation. 
+  useEffect(() => {
+    if (status == "success" && user) {
+      navigate("/sign-in");
+    }
+  }, [navigate, status]);
 
   // console.log(formEntries);
   const inputChangeHandler = (event) => {
@@ -21,33 +41,10 @@ export default function SignUp() {
   };
 
   const submitHandler = async (event) => {
-    console.log("submit");
     event.preventDefault();
-    setIsLoading(true);
-    // send it to backend
-    try {
-      const rawResponse = await fetch("/api/auth/signup", {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formEntries),
-      });
-      const response = await rawResponse.json();
 
-      setIsLoading(false);
-      console.log(response);
-
-      if (!response.success) {
-        throw new Error(response.message);
-      }
-      navigate("/sign-in");
-    } catch (error) {
-      console.log("some error occurred");
-      setIsLoading(false);
-      setError(error.message);
-    }
+    await dispatch(signup(formEntries));
+    console.log("rendere3d");
   };
 
   return (

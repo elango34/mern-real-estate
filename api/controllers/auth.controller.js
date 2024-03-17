@@ -28,14 +28,24 @@ export const signin = async (req, res, next) => {
 
   try {
     const user = await User.findOne({ email });
+    // return the next() so that it will terminate and it won't go to the next process
     if (!user) return next(errorHandler(401, "User not found"));
     const validatePassword = bcryptjs.compareSync(password, user.password);
     if (!validatePassword) return next(errorHandler(401, "Wrong credentials"));
     const token = Jwt.sign({ id: user._id }, process.env.JWT_SECRET);
-    // extract 
-    const { password: pass, ...remainingUserDetails } = user;
-    res.cookie("access_token", token, { httpOnly: true }).status(200).json(remainingUserDetails);
-    console.log(user);
+    // extract password and rename it to pass and expand the remaining things and send it to frontend
+    // understand why ._doc is there (https://www.notion.so/Node-js-a74a450ee2864a04b641e826d88e956d?pvs=4#d99d922b1e5549519a1800c74695684b)
+    const { password: pass, ...remainingUserDetails } = user._doc;
+    setTimeout(function () {
+      res
+        .cookie("access_token", token, { httpOnly: true })
+        .status(200)
+        .json({
+          ...remainingUserDetails,
+          success: true,
+          message: "successfully loggged in",
+        });
+    }, 5000);
   } catch (error) {
     next(error);
   }
