@@ -32,20 +32,32 @@ export const signin = async (req, res, next) => {
     if (!user) return next(errorHandler(401, "User not found"));
     const validatePassword = bcryptjs.compareSync(password, user.password);
     if (!validatePassword) return next(errorHandler(401, "Wrong credentials"));
-    const token = Jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+    const token = Jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "30m",
+    });
     // extract password and rename it to pass and expand the remaining things and send it to frontend
     // understand why ._doc is there (https://www.notion.so/Node-js-a74a450ee2864a04b641e826d88e956d?pvs=4#d99d922b1e5549519a1800c74695684b)
     const { password: pass, ...remainingUserDetails } = user._doc;
-    setTimeout(function () {
-      res
-        .cookie("access_token", token, { httpOnly: true })
-        .status(200)
-        .json({
-          ...remainingUserDetails,
-          success: true,
-          message: "successfully loggged in",
-        });
-    }, 5000);
+
+    // ###### Imp: httpOnly: true, This will prevent javascript on fe to access it and it prevents vulnerable attacks.
+
+    // Set cookie expiration to 30 minutes from the current time
+    const expiresDate = new Date();
+    expiresDate.setTime(expiresDate.getTime() + 30 * 60 * 1000); // Expires in 30 minutes
+
+    // setTimeout(function () {
+    res
+      .cookie("access_token", token, {
+        httpOnly: true,
+        expires: expiresDate,
+      })
+      .status(200)
+      .json({
+        user: { ...remainingUserDetails },
+        success: true,
+        message: "successfully loggged in",
+      });
+    // }, 5000);
   } catch (error) {
     next(error);
   }

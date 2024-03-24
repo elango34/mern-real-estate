@@ -12,6 +12,7 @@ const initialState = {
 
 const successReducer = (state, action) => {
   let response = action.payload;
+  console.log(response);
   if (!response.success) {
     state.status = "error";
     state.error = response.message;
@@ -20,7 +21,7 @@ const successReducer = (state, action) => {
   }
   state.status = "success";
   state.error = null;
-  state.currentUser = action.payload.userName;
+  state.currentUser = action.payload.user;
   // redirect to somewhere ? but this is a common reducer know
   // currently redirected after dispatch only
 };
