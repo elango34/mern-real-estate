@@ -11,9 +11,9 @@ export const signup = async (req, res, next) => {
     const hashedPassword = bcryptjs.hashSync(password, 10);
     const user = new User({ userName, password: hashedPassword, email });
     await user.save();
-    res.status(201).json({
+    res.status(200).json({
       success: true,
-      statusCode: 201,
+      statusCode: 200,
       message: "successfully saved",
     });
   } catch (error) {
@@ -58,6 +58,76 @@ export const signin = async (req, res, next) => {
         message: "successfully loggged in",
       });
     // }, 5000);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const google = async (req, res, next) => {
+  try {
+    const user = await User.findOne({ email: req.body.email });
+
+    if (user) {
+      const token = Jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+        expiresIn: "30m",
+      });
+      const { password: pass, ...remainingUserDetails } = user._doc;
+      // Set cookie expiration to 30 minutes from the current time
+      const expiresDate = new Date();
+      expiresDate.setTime(expiresDate.getTime() + 30 * 60 * 1000); // Expires in 30 minutes
+
+      // setTimeout(function () {
+      res
+        .cookie("access_token", token, {
+          httpOnly: true,
+          expires: expiresDate,
+        })
+        .status(200)
+        .json({
+          user: { ...remainingUserDetails },
+          success: true,
+          message: "successfully loggged in",
+        });
+    } else {
+      const newPassword = Math.random().toString(36).slice(-8);
+      const hashedPassword = bcryptjs.hashSync(newPassword, 10);
+      const userName =
+        req.body.name.replace(/\s/g, "").toLowerCase() +
+        Math.random().toString(36).slice(-4);
+      const avatar = req.body.photo;
+      const email = req.body.email;
+
+      const user = new User({
+        userName,
+        password: hashedPassword,
+        email,
+        avatar,
+      });
+
+      await user.save();
+
+      // sign-in the user
+      const token = Jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+        expiresIn: "30m",
+      });
+      const { password: pass, ...remainingUserDetails } = user._doc;
+
+      // Set cookie expiration to 30 minutes from the current time
+      const expiresDate = new Date();
+      expiresDate.setTime(expiresDate.getTime() + 30 * 60 * 1000); // Expires in 30 minutes
+
+      res
+        .cookie("access_token", token, {
+          httpOnly: true,
+          expires: expiresDate,
+        })
+        .status(200)
+        .json({
+          user: { ...remainingUserDetails },
+          success: true,
+          message: "successfully loggged in",
+        });
+    }
   } catch (error) {
     next(error);
   }

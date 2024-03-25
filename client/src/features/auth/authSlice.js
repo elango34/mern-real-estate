@@ -39,7 +39,7 @@ const failureReducer = (state, action) => {
 const authSlice = createSlice({
   name: "auth",
   initialState,
-  reducers: {},
+  reducers: {signInSuccess: successReducer},
   extraReducers(builder) {
     builder
       .addCase(login.pending, loadingReducer)
@@ -90,3 +90,5 @@ export const selectUser = (state) => state.auth.currentUser;
 export const selectIsLoading = (state) => state.auth.status === "loading";
 
 export default authSlice.reducer;
+
+export const {signInSuccess} = authSlice.actions;
