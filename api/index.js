@@ -1,6 +1,7 @@
 import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import path from "path";
 
 //
 import userRouter from "./routes/user.route.js";
@@ -22,6 +23,15 @@ mongoose
     console.log(err);
   });
 
+// serving static assests
+
+// ***** Use this, If you are running index.js not from the root dir ******
+// const __dirname = path.dirname(new URL(import.meta.url).pathname);
+// app.use(express.static(path.join(__dirname, 'public')));
+
+// ********** or, just use this ***********
+app.use(express.static("public"));
+
 app.use("/api/user", userRouter);
 app.use("/api/auth", authRouter);
 
@@ -36,9 +46,6 @@ app.use((err, req, res, next) => {
     message: errorMessage,
   });
 });
-
-// serving static assests
-app.use(express.static("public"));
 
 app.listen(3001, () => {
   console.log("listening on port 3001..");

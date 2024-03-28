@@ -6,7 +6,9 @@ import {
   selectError,
   selectIsLoading,
   selectStatus,
+  selectUser,
 } from "./authSlice";
+import OAuth from "../../components/OAuth";
 
 export default function SignUp() {
   const [formEntries, setFormEntries] = useState({
@@ -24,10 +26,10 @@ export default function SignUp() {
 
   // Since React may batch state updates, we use useEffect to ensure we have the latest
   // 'status' value after the component re-renders due to the state change.
-  // useEffect guarantees that the code within it runs after the component has re-rendered in 
-  // response to the state update, ensuring that we access the latest 'status' for navigation. 
+  // useEffect guarantees that the code within it runs after the component has re-rendered in
+  // response to the state update, ensuring that we access the latest 'status' for navigation.
   useEffect(() => {
-    if (status == "success" && user) {
+    if (status == "success") {
       navigate("/sign-in");
     }
   }, [navigate, status]);

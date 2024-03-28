@@ -2,6 +2,9 @@
 // https://www.notion.so/Node-js-a74a450ee2864a04b641e826d88e956d?pvs=4
 
 import mongoose, { model } from "mongoose";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const userSchema = mongoose.Schema({
   userName: {
@@ -20,7 +23,7 @@ const userSchema = mongoose.Schema({
   },
   avatar: {
     type: String,
-    default: "images/default_avatar.png"
+    default: `${process.env.BASE_URL}/images/default_avatar.png`,
   },
 });
 
