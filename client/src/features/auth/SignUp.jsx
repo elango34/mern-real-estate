@@ -34,7 +34,6 @@ export default function SignUp() {
     }
   }, [navigate, status]);
 
-  // console.log(formEntries);
   const inputChangeHandler = (event) => {
     setFormEntries({
       ...formEntries,
@@ -46,7 +45,6 @@ export default function SignUp() {
     event.preventDefault();
 
     await dispatch(signup(formEntries));
-    console.log("rendere3d");
   };
 
   return (

@@ -42,7 +42,6 @@ export default function SignIn() {
     e.preventDefault();
 
     await dispatch(login(formData));
-    console.log("rendere3d");
   };
   return (
     <div className="p-3 max-w-lg mx-auto">

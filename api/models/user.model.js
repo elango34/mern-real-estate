@@ -6,6 +6,8 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+// const opts = { toJSON: { virtuals: true } };
+
 const userSchema = mongoose.Schema({
   userName: {
     required: true,
@@ -26,6 +28,19 @@ const userSchema = mongoose.Schema({
     default: `${process.env.BASE_URL}/images/default_avatar.png`,
   },
 });
+
+// Define a virtual property for the full avatar URL
+if (process.env.IMAGE_UPLOAD == "local") {
+  userSchema.virtual("avatarUrl").get(function () {
+    if (this.avatar && !this.avatar.includes("default_avatar.png")) {
+      return `${process.env.BASE_URL}images/profile/${this.avatar}`;
+    }
+    return this.avatar;
+  });
+}
+
+// Set any options if needed
+// userSchema.set("toJSON", { virtuals: true }); // Example: This sets options for JSON serialization
 
 const User = mongoose.model("User", userSchema);
 

@@ -6,6 +6,7 @@ import path from "path";
 //
 import userRouter from "./routes/user.route.js";
 import authRouter from "./routes/auth.route.js";
+import multer from "multer";
 
 dotenv.config();
 
@@ -32,13 +33,27 @@ mongoose
 // ********** or, just use this ***********
 app.use(express.static("public"));
 
+// Media will be served from local only on dev mode as we have this folder
+if (process.env.IMAGE_UPLOAD == "local") {
+  const imageUploadDir = `${process.env.MEDIA_BASE_URL}/images/profile`;
+
+  // Serve uploaded images from the directory specified by IMAGE_UPLOAD_DIR
+  app.use(
+    "/images/profile",
+    express.static( imageUploadDir)
+  );
+}
+
 app.use("/api/user", userRouter);
 app.use("/api/auth", authRouter);
 
 // https://www.notion.so/Node-js-a74a450ee2864a04b641e826d88e956d?pvs=4#d24f3242fa0a4bc6b162e024581b3146
 app.use((err, req, res, next) => {
   const errorStatusCode = err.statusCode || 500;
-  const errorMessage = err.message || "Internal server error";
+  let errorMessage = err.message || "Internal server error";
+  if (err instanceof multer.MulterError) {
+    errorMessage = err.message || "Error uploading file";
+  }
 
   res.status(errorStatusCode).json({
     success: false,

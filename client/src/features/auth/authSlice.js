@@ -12,7 +12,6 @@ const initialState = {
 
 const successReducer = (state, action) => {
   let response = action.payload;
-  console.log(response);
   if (!response.success) {
     state.status = "error";
     state.error = response.message;
@@ -78,7 +77,6 @@ export const signup = createAsyncThunk("auth/signup", async (formData) => {
     body: JSON.stringify(formData),
   });
   const response = await rawResponse.json();
-  console.log(response);
   return response;
 });
 

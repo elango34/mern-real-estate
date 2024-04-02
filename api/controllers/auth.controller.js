@@ -4,7 +4,6 @@ import Jwt from "jsonwebtoken";
 import { errorHandler } from "../utils/errorHandler.js";
 
 export const signup = async (req, res, next) => {
-  // console.log(req.body);
   const { userName, password, email } = req.body;
 
   try {
@@ -38,7 +37,10 @@ export const signin = async (req, res, next) => {
     // extract password and rename it to pass and expand the remaining things and send it to frontend
     // understand why ._doc is there (https://www.notion.so/Node-js-a74a450ee2864a04b641e826d88e956d?pvs=4#d99d922b1e5549519a1800c74695684b)
     const { password: pass, ...remainingUserDetails } = user._doc;
-
+    
+    if(process.env.IMAGE_UPLOAD == "local") {
+      remainingUserDetails.avatar = user.avatarUrl;
+    }
     // ###### Imp: httpOnly: true, This will prevent javascript on fe to access it and it prevents vulnerable attacks.
 
     // Set cookie expiration to 30 minutes from the current time
